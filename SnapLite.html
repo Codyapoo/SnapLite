@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<!-- ============================================================
+     SEO ON-PAGE — chỉnh lại domain/tên miền thật của bạn trước khi
+     deploy (tìm chuỗi "https://nenanh-pro.vercel.app" bên dưới)
+============================================================ -->
+<title>Nén Ảnh Online Miễn Phí | SnapLite - Công Cụ Nén & Chuyển Đổi Ảnh JPG PNG WEBP</title>
+<meta name="description" content="Nén ảnh online miễn phí, không giới hạn dung lượng, không upload lên server. Chuyển đổi PNG sang JPG, JPG sang WEBP ngay trên trình duyệt - bảo mật tuyệt đối, xử lý tức thì, không cần cài đặt.">
+<meta name="keywords" content="nén ảnh online, giảm dung lượng ảnh, chuyển đổi định dạng ảnh, nén ảnh miễn phí, convert png sang jpg, compress image online, nén ảnh không giảm chất lượng">
+<meta name="author" content="SnapLite">
+<link rel="canonical" href="https://nenanh-pro.vercel.app/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="SnapLite - Nén & Chuyển Đổi Ảnh Online Miễn Phí, 100% Riêng Tư">
+<meta property="og:description" content="Kéo thả ảnh vào, chọn mức nén, tải xuống ngay. Toàn bộ xử lý diễn ra trên trình duyệt của bạn, ảnh không bao giờ rời khỏi máy.">
+<meta property="og:image" content="https://nenanh-pro.vercel.app/og-cover.jpg">
+<meta property="og:url" content="https://nenanh-pro.vercel.app/">
+<meta property="og:locale" content="vi_VN">
+<meta property="og:site_name" content="SnapLite">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SnapLite - Nén & Chuyển Đổi Ảnh Online Miễn Phí">
+<meta name="twitter:description" content="Nén ảnh, đổi định dạng PNG/JPG/WEBP ngay trên trình duyệt. Không upload, không giới hạn, không watermark.">
+<meta name="twitter:image" content="https://nenanh-pro.vercel.app/og-cover.jpg">
+
+<!-- JSON-LD structured data — giúp Google hiểu đây là WebApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "SnapLite",
+  "url": "https://nenanh-pro.vercel.app/",
+  "applicationCategory": "MultimediaApplication",
+  "operatingSystem": "Any (chạy trên trình duyệt)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "VND" },
+  "description": "Công cụ nén và chuyển đổi định dạng ảnh trực tuyến, xử lý hoàn toàn trên trình duyệt.",
+  "featureList": "Nén ảnh JPG/PNG/WEBP, chuyển đổi định dạng ảnh, xem trước dung lượng trước và sau khi nén"
+}
+</script>
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%2312141A%22/><rect x=%2222%22 y=%2222%22 width=%2256%22 height=%2256%22 rx=%228%22 fill=%22none%22 stroke=%22%23F2A65A%22 stroke-width=%228%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%235EEAD4%22/></svg>">
+
+<!-- Tailwind CSS qua CDN — 0 đồng chi phí build -->
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg-void:#12141A;
+    --panel:#1B1E27;
+    --panel-2:#20232D;
+    --paper:#F5F3ED;
+    --amber:#F2A65A;
+    --cyan:#5EEAD4;
+    --ink:#ECE9E1;
+    --muted:#8B8F9B;
+  }
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg-void); color:var(--ink); font-family:'Inter',sans-serif;}
+  .font-display{font-family:'Space Grotesk',sans-serif;}
+  .font-mono{font-family:'IBM Plex Mono',monospace;}
+
+  /* Sprocket-hole motif — gợi nhớ mép cuộn phim, gắn với chủ đề "ảnh" */
+  .sprockets{
+    background-image: radial-gradient(circle, var(--bg-void) 2.5px, transparent 2.6px);
+    background-size: 18px 18px;
+    background-position: 6px center;
+  }
+  .sprocket-frame{
+    border: 1.5px dashed rgba(242,166,90,0.35);
+    position: relative;
+  }
+  .sprocket-frame::before, .sprocket-frame::after{
+    content:"";
+    position:absolute; left:0; right:0; height:10px;
+    background-image: radial-gradient(circle, rgba(242,166,90,0.5) 2px, transparent 2.2px);
+    background-size: 16px 10px;
+    background-repeat: repeat-x;
+  }
+  .sprocket-frame::before{ top:-11px; }
+  .sprocket-frame::after{ bottom:-11px; }
+
+  .dropzone-active{ border-color: var(--cyan) !important; background: rgba(94,234,212,0.06) !important; }
+
+  input[type=range]{ -webkit-appearance:none; height:4px; border-radius:999px; background:#333844; }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background: var(--amber); border:3px solid var(--bg-void); cursor:pointer; margin-top:-7px;
+    box-shadow:0 0 0 1px rgba(242,166,90,0.4);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:18px; height:18px; border-radius:50%; background:var(--amber); border:3px solid var(--bg-void); cursor:pointer;
+  }
+
+  .counter-glow{ text-shadow: 0 0 18px rgba(94,234,212,0.35); }
+  .fade-in{ animation: fadeIn .35s ease both; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  ::selection{ background: var(--amber); color:#12141A; }
+
+  .ad-slot{
+    border: 1px dashed #3A3F4B;
+    background: repeating-linear-gradient(135deg, #191C24, #191C24 10px, #1D2029 10px, #1D2029 20px);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+
+<body class="min-h-screen">
+
+<a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:bg-[var(--amber)] focus:text-[#12141A] focus:px-3 focus:py-2 focus:rounded z-50">Bỏ qua tới nội dung chính</a>
+
+<!-- ================= HEADER ================= -->
+<header class="border-b border-white/5 sticky top-0 z-40 bg-[var(--bg-void)]/90 backdrop-blur">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <span class="w-8 h-8 rounded-lg border-2 border-[var(--amber)] flex items-center justify-center">
+        <span class="w-2.5 h-2.5 rounded-full bg-[var(--cyan)]"></span>
+      </span>
+      <span class="font-display font-700 text-lg tracking-tight">Snap<span class="text-[var(--amber)]">Lite</span></span>
+    </div>
+    <p class="hidden sm:block text-xs font-mono text-[var(--muted)]">100% xử lý trên trình duyệt · Không upload lên server</p>
+  </div>
+
+  <!-- ============================================================
+       ✅ AD SLOT #1 — HEADER LEADERBOARD (728x90 / responsive)
+       Dán mã Google AdSense <ins class="adsbygoogle">...</ins> vào
+       đúng vị trí bên trong div#ad-slot-header bên dưới.
+  ============================================================ -->
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 pb-3">
+    <div id="ad-slot-header" class="ad-slot rounded-md h-[60px] sm:h-[90px] flex items-center justify-center text-[11px] font-mono text-[var(--muted)]">
+      <!-- ADSENSE_HEADER_SLOT: dán <ins class="adsbygoogle">...</ins> tại đây -->
+      Vị trí quảng cáo · Header Banner (728×90)
+    </div>
+  </div>
+</header>
+
+<main id="main" class="max-w-6xl mx-auto px-4 sm:px-6">
+
+  <!-- ================= HERO / DROPZONE ================= -->
+  <section class="pt-10 sm:pt-14 pb-6 text-center">
+    <h1 class="font-display font-700 text-3xl sm:text-5xl leading-tight">
+      Nén ảnh &amp; chuyển đổi định dạng<br class="hidden sm:block"> <span class="text-[var(--amber)]">ngay trên trình duyệt</span>
+    </h1>
+    <p class="mt-4 text-[var(--muted)] max-w-xl mx-auto text-sm sm:text-base">
+      Kéo-thả ảnh JPG, PNG hoặc WEBP vào khung bên dưới. Không giới hạn số lượng, không thu thập dữ liệu — ảnh của bạn không bao giờ rời khỏi máy tính.
+    </p>
+  </section>
+
+  <section class="pb-10">
+    <div id="dropzone" class="sprocket-frame my-6 rounded-xl border-2 border-dashed border-[var(--amber)]/40 bg-[var(--panel)] px-6 py-14 sm:py-20 text-center cursor-pointer transition-colors">
+      <input id="fileInput" type="file" accept="image/png,image/jpeg,image/webp" multiple class="hidden">
+      <div class="mx-auto w-14 h-14 rounded-full bg-[var(--panel-2)] flex items-center justify-center mb-4">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+      </div>
+      <p class="font-display font-600 text-base sm:text-lg">Kéo thả ảnh vào đây, hoặc <span class="text-[var(--amber)] underline">chọn từ máy</span></p>
+      <p class="mt-2 text-xs font-mono text-[var(--muted)]">Hỗ trợ .PNG · .JPG · .WEBP</p>
+    </div>
+
+    <!-- ================= BẢNG ĐIỀU KHIỂN ================= -->
+    <div class="rounded-xl bg-[var(--panel)] border border-white/5 p-5 sm:p-6 grid sm:grid-cols-[1fr_auto] gap-6 items-end">
+      <div class="grid sm:grid-cols-2 gap-5">
+        <div>
+          <div class="flex justify-between items-baseline mb-2">
+            <label for="quality" class="text-sm font-600">Mức độ nén (Quality)</label>
+            <span id="qualityVal" class="font-mono text-[var(--cyan)] text-sm">80%</span>
+          </div>
+          <input id="quality" type="range" min="1" max="100" value="80" class="w-full">
+          <div class="flex justify-between text-[10px] font-mono text-[var(--muted)] mt-1"><span>Nén mạnh (1%)</span><span>Giữ chất lượng (100%)</span></div>
+        </div>
+        <div>
+          <label for="format" class="text-sm font-600 block mb-2">Định dạng đầu ra</label>
+          <select id="format" class="w-full bg-[var(--panel-2)] border border-white/10 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--amber)]">
+            <option value="auto">Giữ nguyên định dạng gốc</option>
+            <option value="image/jpeg">Chuyển sang JPG</option>
+            <option value="image/webp">Chuyển sang WEBP</option>
+            <option value="image/png">Chuyển sang PNG</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <button id="compressBtn" class="font-display font-600 bg-[var(--amber)] text-[#12141A] px-5 py-3 rounded-md hover:brightness-110 active:scale-[0.98] transition disabled:opacity-40 disabled:pointer-events-none">
+          Nén ảnh ngay
+        </button>
+        <button id="downloadAllBtn" class="font-display font-600 border border-[var(--cyan)]/50 text-[var(--cyan)] px-5 py-3 rounded-md hover:bg-[var(--cyan)]/10 transition hidden">
+          Tải tất cả (.zip)
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= DANH SÁCH KẾT QUẢ ================= -->
+    <div id="emptyState" class="text-center text-[var(--muted)] text-sm font-mono py-10">Chưa có ảnh nào được chọn.</div>
+    <div id="results" class="grid sm:grid-cols-2 gap-5 mt-6"></div>
+  </section>
+
+  <!-- ============================================================
+       ✅ AD SLOT #2 — IN-CONTENT (sau khu vực kết quả, trước nút download)
+       Vị trí này có tỉ lệ click cao vì nằm ngay dưới thao tác chính.
+  ============================================================ -->
+  <section class="pb-10">
+    <div id="ad-slot-incontent" class="ad-slot rounded-md h-[100px] sm:h-[250px] flex items-center justify-center text-[11px] font-mono text-[var(--muted)]">
+      <!-- ADSENSE_INCONTENT_SLOT: dán <ins class="adsbygoogle">...</ins> tại đây -->
+      Vị trí quảng cáo · In-content (300×250 / responsive)
+    </div>
+  </section>
+
+  <!-- ================= NỘI DUNG SEO ================= -->
+  <section class="pb-10 border-t border-white/5 pt-10">
+    <div class="grid md:grid-cols-[1fr_260px] gap-8">
+      <div>
+        <h2 class="font-display font-700 text-2xl mb-4">Vì sao nên nén ảnh trước khi đăng tải?</h2>
+        <p class="text-sm text-[var(--muted)] leading-relaxed mb-4">
+          Ảnh dung lượng lớn làm chậm tốc độ tải trang, tốn băng thông và ảnh hưởng trực tiếp đến thứ hạng SEO trên Google. SnapLite giúp bạn giảm dung lượng ảnh xuống tới 90% mà vẫn giữ được chất lượng hiển thị tốt, phù hợp để đăng lên website, mạng xã hội, email marketing hay lưu trữ cá nhân.
+        </p>
+        <h2 class="font-display font-700 text-xl mb-3 mt-8">Câu hỏi thường gặp</h2>
+        <div class="space-y-3">
+          <details class="bg-[var(--panel)] rounded-md p-4 group">
+            <summary class="cursor-pointer font-600 text-sm">Ảnh của tôi có được gửi lên server không?</summary>
+            <p class="text-xs text-[var(--muted)] mt-2">Không. Toàn bộ quá trình nén và chuyển đổi diễn ra ngay trên trình duyệt của bạn bằng JavaScript (Canvas API). Ảnh không bao giờ rời khỏi thiết bị của bạn.</p>
+          </details>
+          <details class="bg-[var(--panel)] rounded-md p-4 group">
+            <summary class="cursor-pointer font-600 text-sm">Công cụ có giới hạn số lượng ảnh hoặc dung lượng không?</summary>
+            <p class="text-xs text-[var(--muted)] mt-2">Không giới hạn. Bạn có thể nén nhiều ảnh cùng lúc, giới hạn duy nhất phụ thuộc vào bộ nhớ của trình duyệt bạn đang dùng.</p>
+          </details>
+          <details class="bg-[var(--panel)] rounded-md p-4 group">
+            <summary class="cursor-pointer font-600 text-sm">Định dạng nào giúp giảm dung lượng nhiều nhất?</summary>
+            <p class="text-xs text-[var(--muted)] mt-2">WEBP thường cho dung lượng nhỏ nhất với chất lượng tương đương JPG, và có hỗ trợ trong suốt (transparency) như PNG.</p>
+          </details>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           ✅ AD SLOT #3 — SIDEBAR (dạng skyscraper, ẩn trên mobile)
+      ============================================================ -->
+      <aside class="hidden md:block">
+        <div id="ad-slot-sidebar" class="ad-slot rounded-md h-[600px] sticky top-24 flex items-center justify-center text-[11px] font-mono text-[var(--muted)]">
+          <!-- ADSENSE_SIDEBAR_SLOT: dán <ins class="adsbygoogle">...</ins> tại đây -->
+          Quảng cáo<br>Sidebar (160×600)
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<footer class="border-t border-white/5 py-8 text-center text-xs font-mono text-[var(--muted)]">
+  © <span id="year"></span> SnapLite · Nén ảnh miễn phí, riêng tư, không giới hạn.
+</footer>
+
+<!-- Template ẩn cho 1 thẻ kết quả -->
+<template id="cardTemplate">
+  <div class="fade-in rounded-xl bg-[var(--panel)] border border-white/5 overflow-hidden">
+    <div class="grid grid-cols-2">
+      <div class="relative">
+        <img class="origImg w-full h-36 object-cover" alt="Ảnh gốc">
+        <span class="absolute bottom-1.5 left-1.5 text-[10px] font-mono bg-black/60 px-1.5 py-0.5 rounded">Trước</span>
+      </div>
+      <div class="relative">
+        <img class="newImg w-full h-36 object-cover" alt="Ảnh sau khi nén">
+        <span class="absolute bottom-1.5 left-1.5 text-[10px] font-mono bg-black/60 px-1.5 py-0.5 rounded text-[var(--cyan)]">Sau</span>
+      </div>
+    </div>
+    <div class="p-4">
+      <p class="fileName text-xs truncate font-600 mb-2"></p>
+      <div class="flex items-center justify-between font-mono text-sm">
+        <span class="origSize text-[var(--muted)] line-through"></span>
+        <span>→</span>
+        <span class="newSize counter-glow text-[var(--cyan)] font-600"></span>
+        <span class="savedPct bg-[var(--cyan)]/10 text-[var(--cyan)] text-[11px] px-2 py-0.5 rounded-full"></span>
+      </div>
+      <button class="downloadBtn mt-3 w-full font-display font-600 text-sm bg-[var(--amber)] text-[#12141A] py-2 rounded-md hover:brightness-110 transition">Tải ảnh xuống</button>
+    </div>
+  </div>
+</template>
+
+<!-- JSZip — CHỈ dùng để gộp nhiều ảnh vào 1 file .zip khi bấm "Tải tất cả", không gửi dữ liệu đi đâu cả -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+const dropzone   = document.getElementById('dropzone');
+const fileInput  = document.getElementById('fileInput');
+const qualityEl  = document.getElementById('quality');
+const qualityVal = document.getElementById('qualityVal');
+const formatEl   = document.getElementById('format');
+const compressBtn= document.getElementById('compressBtn');
+const downloadAllBtn = document.getElementById('downloadAllBtn');
+const resultsEl  = document.getElementById('results');
+const emptyState = document.getElementById('emptyState');
+const cardTpl    = document.getElementById('cardTemplate');
+
+let queue = []; // { id, file, origURL, origSize, resultBlob, resultURL, resultSize, ext, cardEl }
+
+qualityEl.addEventListener('input', () => qualityVal.textContent = qualityEl.value + '%');
+
+// ---------- Kéo-thả & chọn file ----------
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('dropzone-active'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dropzone-active'));
+dropzone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropzone.classList.remove('dropzone-active');
+  handleFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', e => handleFiles(e.target.files));
+
+function handleFiles(fileList){
+  const files = Array.from(fileList).filter(f => /^image\/(png|jpeg|webp)$/.test(f.type));
+  if (!files.length) return;
+  files.forEach(file => {
+    const id = crypto.randomUUID();
+    const origURL = URL.createObjectURL(file);
+    queue.push({ id, file, origURL, origSize: file.size, resultBlob: null, resultURL: null, resultSize: null });
+  });
+  renderQueue();
+}
+
+function bytesToStr(bytes){
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1024/1024).toFixed(2) + ' MB';
+}
+
+function renderQueue(){
+  emptyState.classList.toggle('hidden', queue.length > 0);
+  resultsEl.innerHTML = '';
+  queue.forEach(item => {
+    const node = cardTpl.content.cloneNode(true);
+    const root = node.querySelector('div');
+    node.querySelector('.origImg').src = item.origURL;
+    node.querySelector('.newImg').src = item.resultURL || item.origURL;
+    node.querySelector('.fileName').textContent = item.file.name;
+    node.querySelector('.origSize').textContent = bytesToStr(item.origSize);
+    node.querySelector('.newSize').textContent = item.resultSize ? bytesToStr(item.resultSize) : bytesToStr(item.origSize);
+    const pctEl = node.querySelector('.savedPct');
+    if (item.resultSize){
+      const pct = Math.max(0, Math.round((1 - item.resultSize/item.origSize) * 100));
+      pctEl.textContent = '-' + pct + '%';
+    } else {
+      pctEl.textContent = '';
+    }
+    const btn = node.querySelector('.downloadBtn');
+    btn.disabled = !item.resultBlob;
+    btn.classList.toggle('opacity-40', !item.resultBlob);
+    btn.addEventListener('click', () => downloadOne(item));
+    resultsEl.appendChild(node);
+  });
+  downloadAllBtn.classList.toggle('hidden', !queue.some(q => q.resultBlob));
+}
+
+function extFor(mime){
+  return { 'image/jpeg':'jpg', 'image/png':'png', 'image/webp':'webp' }[mime] || 'img';
+}
+
+// ---------- Nén / chuyển đổi bằng Canvas API (100% client-side) ----------
+function compressOne(item, quality, targetFormat){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+
+      const outMime = targetFormat === 'auto' ? item.file.type : targetFormat;
+      // JPG không hỗ trợ trong suốt -> tô nền trắng trước khi vẽ ảnh
+      if (outMime === 'image/jpeg'){
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+      ctx.drawImage(img, 0, 0);
+
+      const q = outMime === 'image/png' ? undefined : quality / 100;
+      canvas.toBlob(blob => {
+        if (!blob) return reject(new Error('Không thể xử lý ảnh này.'));
+        resolve({ blob, mime: outMime });
+      }, outMime, q);
+    };
+    img.onerror = () => reject(new Error('Không đọc được ảnh.'));
+    img.src = item.origURL;
+  });
+}
+
+compressBtn.addEventListener('click', async () => {
+  if (!queue.length) return;
+  compressBtn.disabled = true;
+  compressBtn.textContent = 'Đang xử lý...';
+  const quality = Number(qualityEl.value);
+  const format  = formatEl.value;
+
+  for (const item of queue){
+    try{
+      const { blob, mime } = await compressOne(item, quality, format);
+      if (item.resultURL) URL.revokeObjectURL(item.resultURL);
+      item.resultBlob = blob;
+      item.resultURL  = URL.createObjectURL(blob);
+      item.resultSize = blob.size;
+      item.ext = extFor(mime);
+    } catch(err){
+      console.error(err);
+    }
+  }
+  renderQueue();
+  compressBtn.disabled = false;
+  compressBtn.textContent = 'Nén ảnh ngay';
+});
+
+function downloadOne(item){
+  if (!item.resultBlob) return;
+  const a = document.createElement('a');
+  const base = item.file.name.replace(/\.[^.]+$/, '');
+  a.href = item.resultURL;
+  a.download = base + '-compressed.' + (item.ext || 'img');
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+downloadAllBtn.addEventListener('click', async () => {
+  const done = queue.filter(q => q.resultBlob);
+  if (!done.length) return;
+  downloadAllBtn.textContent = 'Đang nén file zip...';
+  const zip = new JSZip();
+  done.forEach(item => {
+    const base = item.file.name.replace(/\.[^.]+$/, '');
+    zip.file(base + '-compressed.' + (item.ext || 'img'), item.resultBlob);
+  });
+  const content = await zip.generateAsync({ type: 'blob' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(content);
+  a.download = 'snaplite-images.zip';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  downloadAllBtn.textContent = 'Tải tất cả (.zip)';
+});
+</script>
+
+<!-- ============================================================
+     ✅ (TÙY CHỌN) Mã xác minh Google AdSense toàn site.
+     Dán thẻ <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXX"></script>
+     vào ngay trước thẻ đóng </head> ở đầu file, theo hướng dẫn AdSense.
+============================================================ -->
+</body>
+</html>
