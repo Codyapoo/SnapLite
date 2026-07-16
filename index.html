@@ -3,268 +3,547 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#12141A">
+<meta name="theme-color" content="#0F172A">
 
-<title data-i18n="docTitle">SnapLite - Tải Video TikTok Không Watermark Online Miễn Phí</title>
+<title data-i18n="docTitle">CodySnap - Tải Video TikTok Không Watermark Online Miễn Phí</title>
 <meta name="description" content="Công cụ tải video TikTok, hình ảnh không dán logo/watermark miễn phí, tốc độ cao, hỗ trợ đa ngôn ngữ.">
 
-<!-- Tailwind CSS CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
   :root {
-    --bg-void: #12141A; --panel: #1B1E27; --panel-2: #20232D;
-    --amber: #F2A65A; --cyan: #5EEAD4; --ink: #ECE9E1; --muted: #8B8F9B;
+    --bg-void: #0B0F19;
+    --panel: #151C2C;
+    --panel-2: #1E293B;
+    --brand-violet: #8B5CF6;
+    --brand-cyan: #06B6D4;
+    --ink: #F8FAFC;
+    --muted: #94A3B8;
   }
-  body { background: var(--bg-void); color: var(--ink); font-family: 'Inter', sans-serif; min-height: 100vh; }
-  .font-display { font-family: 'Space Grotesk', sans-serif; }
-  .font-mono { font-family: 'IBM Plex Mono', monospace; }
-  .ad-slot { border: 1px dashed #3A3F4B; background: repeating-linear-gradient(135deg, #191C24, #191C24 10px, #1D2029 10px, #1D2029 20px); }
-  .fade-in { animation: fadeIn .3s ease-out both; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  body { 
+    background: var(--bg-void); 
+    color: var(--ink); 
+    font-family: 'Plus Jakarta Sans', sans-serif; 
+    min-height: 100vh; 
+  }
+  .font-mono { font-family: 'JetBrains Mono', monospace; }
+  .bg-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .ad-slot { 
+    border: 1px dashed #334155; 
+    background: repeating-linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(30, 41, 59, 0.5) 10px, rgba(15, 23, 42, 0.5) 10px, rgba(15, 23, 42, 0.5) 20px); 
+  }
+  .fade-in { animation: fadeIn .35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  #toastStack { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 100; display:flex; flex-direction:column; gap:10px; align-items:center; }
+  .toast { 
+    background: var(--panel); 
+    border: 1px solid rgba(255,255,255,0.12); 
+    color: var(--ink); 
+    font-size: 13px; 
+    font-family:'JetBrains Mono',monospace; 
+    padding: 12px 20px; 
+    border-radius: 12px; 
+    box-shadow: 0 10px 30px -5px rgba(0,0,0,0.5); 
+    animation: toastIn .3s cubic-bezier(0.16, 1, 0.3, 1) both; 
+    max-width: 90vw; 
+    backdrop-filter: blur(8px);
+  }
+  .toast.success { border-color: rgba(6,182,212,0.5); background: linear-gradient(135deg, rgba(21,28,44,0.95), rgba(6,182,212,0.1)); }
+  .toast.error { border-color: rgba(239,68,68,0.5); background: linear-gradient(135deg, rgba(21,28,44,0.95), rgba(239,68,68,0.1)); }
+  @keyframes toastIn { from { opacity:0; transform: translateY(12px) scale(0.95); } to { opacity:1; transform: translateY(0) scale(1); } }
+  #wmCanvasWrap { touch-action: none; }
+  #wmSelBox { position:absolute; border: 2px dashed #06B6D4; background: rgba(6, 182, 212, 0.15); cursor: move; box-shadow: 0 0 12px rgba(6, 182, 212, 0.3); }
+  .resize-handle { position:absolute; width:14px; height:14px; background: #06B6D4; border-radius:3px; border: 2px solid #fff; }
 </style>
 </head>
 
-<body class="flex flex-col min-h-screen">
+<body class="flex flex-col min-h-screen relative overflow-x-hidden">
 
-  <!-- HEADER -->
-  <header class="border-b border-white/5 sticky top-0 z-40 bg-[var(--bg-void)]/90 backdrop-blur">
-    <div class="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between">
-      <!-- LOGO -->
-      <div class="flex items-center gap-3">
-        <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="shrink-0">
-          <rect width="100" height="100" rx="22" fill="#1B1E27"/>
-          <rect x="18" y="18" width="64" height="64" rx="16" fill="none" stroke="#F2A65A" stroke-width="7"/>
-          <path d="M42 42L26 26M42 42H29M42 42V29" stroke="#5EEAD4" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M58 58L74 74M58 58H71M58 58V71" stroke="#5EEAD4" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span class="font-display font-bold text-xl tracking-tight text-white">Snap<span class="text-[var(--amber)]">Down</span></span>
-      </div>
+  <div class="bg-glow w-[500px] h-[500px] bg-purple-600 top-[-100px] left-[-100px]"></div>
+  <div class="bg-glow w-[500px] h-[500px] bg-cyan-600 top-[200px] right-[-100px]"></div>
 
-      <!-- LANGUAGE SELECTOR -->
-      <div class="flex items-center gap-2">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-        <select id="langSelect" class="bg-[var(--panel)] border border-white/10 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-[var(--amber)] cursor-pointer">
-          <option value="vi">🇻🇳 Tiếng Việt</option>
-          <option value="en">🇺🇸 English</option>
-          <option value="zh">🇨🇳 中文</option>
-          <option value="de">🇩🇪 Deutsch</option>
-          <option value="th">🇹🇭 ไทย</option>
-        </select>
+  <div id="toastStack"></div>
+
+  <header class="border-b border-white/10 sticky top-0 z-40 bg-[#0B0F19]/80 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-600 to-cyan-400 p-0.5 shadow-lg shadow-violet-500/20 group-hover:scale-105 transition-transform">
+          <div class="w-full h-full bg-[#0B0F19] rounded-[10px] flex items-center justify-center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13 3L4 14H11L11 21L20 10H13L13 3Z" fill="url(#logo_grad)" stroke="url(#logo_grad)" stroke-width="1.5" stroke-linejoin="round"/>
+              <defs>
+                <linearGradient id="logo_grad" x1="4" y1="3" x2="20" y2="21" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#8B5CF6"/>
+                  <stop offset="1" stop-color="#06B6D4"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+        </div>
+        <span class="font-extrabold text-2xl tracking-tight text-white">Cody<span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">Snap</span></span>
+      </a>
+
+      <div class="flex items-center gap-4 sm:gap-6">
+        <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-[var(--muted)]">
+          <a href="#features" class="hover:text-white transition-colors" data-i18n="navFeatures">Tính năng</a>
+          <a href="#wmTool" class="hover:text-white transition-colors" data-i18n="navWmTool">Xóa Logo Ảnh</a>
+          <a href="#howTo" class="hover:text-white transition-colors" data-i18n="navHowTo">Hướng dẫn</a>
+          <a href="#faq" class="hover:text-white transition-colors" data-i18n="navFaq">Hỏi đáp</a>
+        </nav>
+
+        <div class="flex items-center gap-2 bg-[var(--panel)] border border-white/10 rounded-xl px-3 py-1.5 focus-within:border-cyan-500/50 transition">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          <select id="langSelect" class="bg-transparent text-xs font-mono text-white focus:outline-none cursor-pointer">
+            <option value="vi" class="bg-[var(--panel)]">🇻🇳 Tiếng Việt</option>
+            <option value="en" class="bg-[var(--panel)]">🇺🇸 English</option>
+            <option value="zh" class="bg-[var(--panel)]">🇨🇳 中文</option>
+            <option value="de" class="bg-[var(--panel)]">🇩🇪 Deutsch</option>
+            <option value="th" class="bg-[var(--panel)]">🇹🇭 ไทย</option>
+          </select>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- BANNER QUẢNG CÁO HEADER -->
-  <div class="max-w-5xl mx-auto px-4 pt-4 w-full">
-    <div class="ad-slot rounded-lg h-[70px] flex items-center justify-center text-xs font-mono text-[var(--muted)]">
+  <div class="max-w-6xl mx-auto px-4 pt-4 w-full relative z-10">
+    <div class="ad-slot rounded-2xl h-[70px] flex items-center justify-center text-xs font-mono text-[var(--muted)] border-white/5">
       [ Quảng Cáo / Header Banner Ad ]
     </div>
   </div>
 
-  <!-- MAIN CONTENT -->
-  <main class="flex-1 max-w-4xl mx-auto px-4 py-8 w-full">
-    
-    <!-- TITLE SECTION -->
-    <section class="text-center mb-8">
-      <h1 data-i18n="heroTitle" class="font-display font-bold text-3xl sm:text-5xl text-white leading-tight">
-        Tải Video & Ảnh TikTok <br><span class="text-[var(--amber)]">Không Dán Logo / Watermark</span>
+  <main class="flex-1 max-w-5xl mx-auto px-4 py-10 w-full relative z-10">
+
+    <section class="text-center mb-10">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-violet-500/10 text-violet-400 text-xs font-mono mb-6 border border-violet-500/20 shadow-inner">
+        <span class="w-2 h-2 rounded-full bg-violet-400 animate-ping"></span>
+        <span data-i18n="badgeUpdate">Chào mừng bạn đến với CodySnap 👋</span>
+      </div>
+      <h1 data-i18n="heroTitle" class="font-extrabold text-3xl sm:text-5xl lg:text-6xl text-white leading-tight tracking-tight">
+        Tải Video & Ảnh TikTok <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-400 to-teal-300">Không Dán Logo / Watermark</span>
       </h1>
-      <p data-i18n="heroSub" class="text-[var(--muted)] text-sm sm:text-base mt-3 max-w-xl mx-auto">
+      <p data-i18n="heroSub" class="text-[var(--muted)] text-sm sm:text-base mt-4 max-w-xl mx-auto leading-relaxed">
         Chỉ cần dán đường dẫn video hoặc bài viết ảnh vào bên dưới. Xử lý tức thì, hoàn toàn miễn phí!
       </p>
     </section>
 
-    <!-- INPUT BOX -->
-    <section class="bg-[var(--panel)] border border-white/10 rounded-2xl p-3 sm:p-4 shadow-2xl">
+    <section class="bg-[var(--panel)] border border-white/10 rounded-2xl p-3 sm:p-4 shadow-2xl backdrop-blur-xl relative z-10">
       <form id="downloadForm" class="flex flex-col sm:flex-row gap-3">
         <div class="relative flex-1">
           <input type="url" id="videoUrl" required
             placeholder="Dán link TikTok vào đây (vd: https://vt.tiktok.com/...)"
             data-i18n-ph="inputPlaceholder"
-            class="w-full bg-[var(--panel-2)] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder-[var(--muted)] focus:outline-none focus:border-[var(--cyan)] transition"
+            class="w-full bg-[var(--panel-2)] border border-white/10 rounded-xl pl-4 pr-20 py-4 text-sm text-white placeholder-[var(--muted)] focus:outline-none focus:border-cyan-400 transition shadow-inner"
           >
-          <button type="button" id="pasteBtn" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono bg-white/5 hover:bg-white/10 text-[var(--amber)] px-2.5 py-1 rounded-md transition">
+          <button type="button" id="pasteBtn" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono bg-white/10 hover:bg-white/20 text-cyan-300 px-3 py-1.5 rounded-lg transition border border-white/5">
             Paste
           </button>
         </div>
-        <button type="submit" id="submitBtn" class="font-display font-semibold bg-[var(--amber)] hover:brightness-110 active:scale-[0.98] text-[#12141A] px-6 py-3.5 rounded-xl transition flex items-center justify-center gap-2">
+        <button type="submit" id="submitBtn" class="font-bold bg-gradient-to-r from-violet-600 to-cyan-500 hover:brightness-110 active:scale-[0.98] text-white px-8 py-4 rounded-xl transition duration-200 flex items-center justify-center gap-2 shrink-0 shadow-lg shadow-violet-500/25">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
           <span data-i18n="btnDownload">Tải Xuống</span>
         </button>
       </form>
     </section>
 
-    <!-- LOADING & RESULT SECTION -->
     <section id="resultContainer" class="mt-8 hidden fade-in">
-      
-      <!-- LOADING SPINNER -->
-      <div id="loadingState" class="text-center py-10 hidden">
-        <div class="inline-block w-10 h-10 border-4 border-[var(--amber)] border-t-transparent rounded-full animate-spin mb-3"></div>
+      <div id="loadingState" class="text-center py-12 hidden">
+        <div class="inline-block w-12 h-12 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4"></div>
         <p data-i18n="msgProcessing" class="text-sm font-mono text-[var(--muted)]">Đang xử lý và xóa watermark...</p>
       </div>
 
-      <!-- RESULT CARD -->
-      <div id="resultCard" class="bg-[var(--panel)] border border-white/10 rounded-2xl p-5 hidden">
+      <div id="resultCard" class="bg-[var(--panel)] border border-white/10 rounded-2xl p-6 hidden shadow-2xl">
         <div class="flex flex-col md:flex-row gap-6">
-          
-          <!-- PREVIEW MEDIA -->
-          <div class="w-full md:w-56 shrink-0 rounded-xl overflow-hidden bg-black/40 border border-white/5 flex items-center justify-center min-h-[200px]">
-            <img id="resCover" class="w-full h-auto max-h-72 object-cover hidden" alt="Preview">
-            <video id="resVideo" controls class="w-full h-auto max-h-72 hidden"></video>
+          <div class="w-full md:w-60 shrink-0 rounded-xl overflow-hidden bg-black/40 border border-white/10 flex items-center justify-center min-h-[220px]">
+            <img id="resCover" class="w-full h-auto max-h-80 object-cover hidden" alt="Preview">
+            <video id="resVideo" controls class="w-full h-auto max-h-80 hidden"></video>
           </div>
 
-          <!-- DETAILS & ACTIONS -->
           <div class="flex-1 flex flex-col justify-between">
             <div>
-              <div class="flex items-center gap-2 mb-2">
-                <span id="resAuthor" class="text-xs font-mono bg-[var(--cyan)]/10 text-[var(--cyan)] px-2 py-0.5 rounded-full">@author</span>
+              <div class="flex items-center gap-2 mb-3 flex-wrap">
+                <span id="resAuthor" class="text-xs font-mono bg-cyan-500/10 text-cyan-300 px-3 py-1 rounded-full border border-cyan-500/20">@author</span>
+                <span id="resStats" class="text-xs font-mono text-[var(--muted)]"></span>
               </div>
-              <p id="resTitle" class="text-sm font-medium text-white line-clamp-3 mb-4"></p>
+              <p id="resTitle" class="text-base font-semibold text-white leading-relaxed line-clamp-3 mb-3"></p>
+              <button id="copyLinkBtn" data-i18n="btnCopyLink" class="text-xs font-mono text-violet-400 hover:text-violet-300 underline underline-offset-4 transition">Sao chép liên kết gốc</button>
             </div>
 
-            <!-- BUTTON LIST -->
-            <div id="actionButtons" class="space-y-2.5 pt-4 border-t border-white/5">
-              <!-- Render bằng JS tùy theo bài đăng là Video hay Ảnh -->
-            </div>
+            <div id="actionButtons" class="space-y-3 pt-6 border-t border-white/10"></div>
           </div>
         </div>
 
-        <!-- SLIDER IMAGES (Nếu là bài viết dạng album ảnh) -->
-        <div id="imageGallery" class="mt-6 pt-6 border-t border-white/5 hidden">
-          <h3 data-i18n="albumTitle" class="text-sm font-semibold text-white mb-3">Bộ ảnh không watermark:</h3>
-          <div id="imageList" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+        <div id="imageGallery" class="mt-6 pt-6 border-t border-white/10 hidden">
+          <h3 data-i18n="albumTitle" class="text-sm font-bold text-white mb-4">Bộ ảnh không watermark:</h3>
+          <div id="imageList" class="grid grid-cols-2 sm:grid-cols-3 gap-4"></div>
         </div>
       </div>
     </section>
 
-    <!-- HƯỚNG DẪN SỬ DỤNG -->
-    <section class="mt-16 border-t border-white/5 pt-10">
-      <h2 data-i18n="howToTitle" class="font-display font-bold text-xl text-white mb-6 text-center">Cách lấy link video TikTok</h2>
-      <div class="grid sm:grid-cols-3 gap-4">
-        <div class="bg-[var(--panel)] p-4 rounded-xl border border-white/5 text-center">
-          <div class="w-8 h-8 rounded-full bg-[var(--amber)]/10 text-[var(--amber)] font-bold flex items-center justify-center mx-auto mb-3">1</div>
-          <p data-i18n="step1" class="text-xs text-[var(--muted)]">Mở ứng dụng TikTok và tìm video hoặc bài viết ảnh bạn muốn tải.</p>
+    <section id="historySection" class="mt-8 hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xs font-mono text-[var(--muted)] uppercase tracking-wider" data-i18n="historyTitle">Lịch sử tải gần đây</h3>
+        <button id="clearHistoryBtn" data-i18n="historyClear" class="text-xs font-mono text-red-400 hover:text-red-300 transition">Xóa lịch sử</button>
+      </div>
+      <div id="historyList" class="grid sm:grid-cols-2 gap-3"></div>
+    </section>
+
+    <section id="features" class="my-20 border-t border-white/10 pt-16">
+      <div class="text-center mb-12">
+        <h2 class="font-extrabold text-2xl sm:text-3xl text-white" data-i18n="featMainTitle">Tại sao nên chọn CodySnap?</h2>
+        <p class="text-sm text-[var(--muted)] mt-2" data-i18n="featMainSub">Giải pháp tải media TikTok hàng đầu không tốn kém</p>
+      </div>
+
+      <div class="grid sm:grid-cols-3 gap-6">
+        <div class="bg-[var(--panel)] border border-white/10 rounded-2xl p-6 hover:border-violet-500/40 transition duration-300 group">
+          <div class="w-12 h-12 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center text-xl mb-5 group-hover:scale-110 transition-transform">⚡</div>
+          <h3 class="font-bold text-white text-base mb-2" data-i18n="feat1Title">Tốc Độ Cực Nhanh</h3>
+          <p class="text-xs text-[var(--muted)] leading-relaxed" data-i18n="feat1Desc">Hệ thống xử lý tự động tách logo và trả về link tải gốc HD chỉ trong vài mili-giây.</p>
         </div>
-        <div class="bg-[var(--panel)] p-4 rounded-xl border border-white/5 text-center">
-          <div class="w-8 h-8 rounded-full bg-[var(--amber)]/10 text-[var(--amber)] font-bold flex items-center justify-center mx-auto mb-3">2</div>
-          <p data-i18n="step2" class="text-xs text-[var(--muted)]">Nhấn nút "Chia sẻ" (Share) và chọn "Sao chép liên kết" (Copy Link).</p>
+        <div class="bg-[var(--panel)] border border-white/10 rounded-2xl p-6 hover:border-cyan-500/40 transition duration-300 group">
+          <div class="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xl mb-5 group-hover:scale-110 transition-transform">🖼️</div>
+          <h3 class="font-bold text-white text-base mb-2" data-i18n="feat2Title">Hỗ Trợ Album Ảnh & MP3</h3>
+          <p class="text-xs text-[var(--muted)] leading-relaxed" data-i18n="feat2Desc">Không chỉ tải video, bạn còn có thể tách nhạc nền MP3 hoặc tải trọn bộ bài viết dạng slide ảnh.</p>
         </div>
-        <div class="bg-[var(--panel)] p-4 rounded-xl border border-white/5 text-center">
-          <div class="w-8 h-8 rounded-full bg-[var(--amber)]/10 text-[var(--amber)] font-bold flex items-center justify-center mx-auto mb-3">3</div>
-          <p data-i18n="step3" class="text-xs text-[var(--muted)]">Dán link vào ô trên và bấm "Tải Xuống" để xóa logo tức thì.</p>
+        <div class="bg-[var(--panel)] border border-white/10 rounded-2xl p-6 hover:border-white/30 transition duration-300 group">
+          <div class="w-12 h-12 rounded-xl bg-white/10 text-white flex items-center justify-center text-xl mb-5 group-hover:scale-110 transition-transform">🔒</div>
+          <h3 class="font-bold text-white text-base mb-2" data-i18n="feat3Title">An Toàn & Không Cần Cài Đặt</h3>
+          <p class="text-xs text-[var(--muted)] leading-relaxed" data-i18n="feat3Desc">Hoạt động trực tiếp trên Web trình duyệt. Không cần cài phần mềm, không yêu cầu đăng nhập tài khoản.</p>
         </div>
       </div>
+    </section>
+
+    <section id="wmTool" class="my-20 border-t border-white/10 pt-16">
+      <div class="text-center mb-10">
+        <h2 class="font-extrabold text-2xl sm:text-3xl text-white" data-i18n="wmToolTitle">Xóa Logo / Watermark Trên Ảnh Có Sẵn</h2>
+        <p class="text-sm text-[var(--muted)] mt-2 max-w-xl mx-auto leading-relaxed" data-i18n="wmToolSub">Tải ảnh từ máy lên, khoanh vùng logo và để công cụ tự lấp đầy khu vực đó bằng vân ảnh xung quanh.</p>
+      </div>
+
+      <div class="bg-[var(--panel)] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl">
+        <div id="wmUploadZone" class="border-2 border-dashed border-white/15 rounded-2xl py-12 text-center cursor-pointer hover:border-cyan-400/50 hover:bg-white/[0.02] transition duration-200">
+          <input type="file" id="wmFileInput" accept="image/*" class="hidden">
+          <div class="text-4xl mb-3">📤</div>
+          <p class="text-base text-white font-semibold" data-i18n="wmUploadTitle">Nhấn để chọn ảnh hoặc kéo thả vào đây</p>
+          <p class="text-xs text-[var(--muted)] mt-1 font-mono" data-i18n="wmUploadSub">Hỗ trợ JPG, PNG, WEBP</p>
+        </div>
+
+        <div id="wmEditor" class="hidden mt-6">
+          <p class="text-xs font-mono text-[var(--muted)] mb-3 text-center" data-i18n="wmEditorHint">Kéo và chỉnh khung màu xanh để bao quanh logo, sau đó nhấn "Xóa Logo".</p>
+          <div id="wmCanvasWrap" class="relative inline-block max-w-full mx-auto select-none">
+            <canvas id="wmCanvas" class="max-w-full rounded-xl border border-white/10 shadow-lg"></canvas>
+            <div id="wmSelBox" class="hidden">
+              <div class="resize-handle" style="right:-7px;bottom:-7px;cursor:nwse-resize" data-handle="br"></div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3 mt-6 justify-center">
+            <button id="wmApplyBtn" class="font-bold text-sm bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-6 py-3 rounded-xl transition shadow-lg shadow-cyan-500/20" data-i18n="wmApplyBtn">Xóa Logo</button>
+            <button id="wmResetBtn" class="font-bold text-sm border border-white/10 text-white px-6 py-3 rounded-xl hover:bg-white/5 transition" data-i18n="wmResetBtn">Chọn Ảnh Khác</button>
+            <a id="wmDownloadBtn" download="codysnap-no-logo.png" class="hidden font-bold text-sm bg-gradient-to-r from-violet-600 to-cyan-500 text-white px-6 py-3 rounded-xl hover:brightness-110 transition shadow-lg shadow-violet-500/20" data-i18n="wmDownloadBtn">Tải Ảnh Đã Xóa Logo</a>
+          </div>
+          <p class="text-[11px] text-[var(--muted)] mt-4 text-center" data-i18n="wmDisclaimer">Xử lý hoàn toàn trên trình duyệt của bạn — ảnh không được tải lên máy chủ nào.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="howTo" class="my-20 border-t border-white/10 pt-16">
+      <h2 data-i18n="howToTitle" class="font-extrabold text-2xl sm:text-3xl text-white mb-10 text-center">Hướng Dẫn 3 Bước Tải Video TikTok</h2>
+      <div class="grid sm:grid-cols-3 gap-6">
+        <div class="bg-[var(--panel)] p-6 rounded-2xl border border-white/10 text-center relative">
+          <div class="w-10 h-10 rounded-full bg-violet-500/20 text-violet-400 font-bold flex items-center justify-center mx-auto mb-4 border border-violet-500/30">1</div>
+          <h4 class="font-bold text-white text-base mb-2" data-i18n="step1Title">Sao chép liên kết</h4>
+          <p data-i18n="step1" class="text-xs text-[var(--muted)] leading-relaxed">Mở ứng dụng TikTok, chọn video muốn tải > Nhấn nút "Chia sẻ" > "Sao chép liên kết".</p>
+        </div>
+        <div class="bg-[var(--panel)] p-6 rounded-2xl border border-white/10 text-center relative">
+          <div class="w-10 h-10 rounded-full bg-cyan-500/20 text-cyan-400 font-bold flex items-center justify-center mx-auto mb-4 border border-cyan-500/30">2</div>
+          <h4 class="font-bold text-white text-base mb-2" data-i18n="step2Title">Dán liên kết vào CodySnap</h4>
+          <p data-i18n="step2" class="text-xs text-[var(--muted)] leading-relaxed">Quay lại website, dán link vừa chép vào khung tìm kiếm và nhấn nút "Tải Xuống".</p>
+        </div>
+        <div class="bg-[var(--panel)] p-6 rounded-2xl border border-white/10 text-center relative">
+          <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center mx-auto mb-4 border border-emerald-500/30">3</div>
+          <h4 class="font-bold text-white text-base mb-2" data-i18n="step3Title">Lưu File về máy</h4>
+          <p data-i18n="step3" class="text-xs text-[var(--muted)] leading-relaxed">Chọn định dạng mong muốn (Video không logo, MP3 hoặc Ảnh) và tải về máy hoàn toàn miễn phí.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="my-20 border-t border-white/10 pt-16">
+      <h2 class="font-extrabold text-2xl sm:text-3xl text-white mb-10 text-center" data-i18n="faqMainTitle">Câu Hỏi Thường Gặp (FAQ)</h2>
+      <div class="max-w-3xl mx-auto space-y-4">
+        <details class="bg-[var(--panel)] border border-white/10 rounded-2xl p-5 [&_svg]:open:rotate-180 cursor-pointer transition-all">
+          <summary class="flex justify-between items-center font-semibold text-sm text-white list-none">
+            <span data-i18n="q1">Tôi có phải trả phí khi tải video tại CodySnap không?</span>
+            <svg class="w-4 h-4 transition-transform text-[var(--muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="text-xs text-[var(--muted)] mt-4 leading-relaxed border-t border-white/5 pt-3" data-i18n="a1">Không! CodySnap hoàn toàn miễn phí 100%. Bạn có thể tải không giới hạn số lượng video.</p>
+        </details>
+
+        <details class="bg-[var(--panel)] border border-white/10 rounded-2xl p-5 [&_svg]:open:rotate-180 cursor-pointer transition-all">
+          <summary class="flex justify-between items-center font-semibold text-sm text-white list-none">
+            <span data-i18n="q2">Video tải về được lưu ở thư mục nào trên thiết bị?</span>
+            <svg class="w-4 h-4 transition-transform text-[var(--muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="text-xs text-[var(--muted)] mt-4 leading-relaxed border-t border-white/5 pt-3" data-i18n="a2">Thông thường video sẽ được lưu vào thư mục "Downloads" (Tải về) trên máy tính hoặc ứng dụng "Tệp" (Files) / Thư viện ảnh trên điện thoại Android, iPhone.</p>
+        </details>
+
+        <details class="bg-[var(--panel)] border border-white/10 rounded-2xl p-5 [&_svg]:open:rotate-180 cursor-pointer transition-all">
+          <summary class="flex justify-between items-center font-semibold text-sm text-white list-none">
+            <span data-i18n="q3">CodySnap có lưu trữ bản sao video tôi đã tải không?</span>
+            <svg class="w-4 h-4 transition-transform text-[var(--muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="text-xs text-[var(--muted)] mt-4 leading-relaxed border-t border-white/5 pt-3" data-i18n="a3">Không. CodySnap không lưu trữ video hay theo dõi lịch sử tải của người dùng. Tất cả file đều được xử lý trực tiếp từ máy chủ TikTok.</p>
+        </details>
+
+        <details class="bg-[var(--panel)] border border-white/10 rounded-2xl p-5 [&_svg]:open:rotate-180 cursor-pointer transition-all">
+          <summary class="flex justify-between items-center font-semibold text-sm text-white list-none">
+            <span data-i18n="q4">Công cụ xóa logo trên ảnh có hoạt động với mọi ảnh không?</span>
+            <svg class="w-4 h-4 transition-transform text-[var(--muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="text-xs text-[var(--muted)] mt-4 leading-relaxed border-t border-white/5 pt-3" data-i18n="a4">Công cụ hoạt động tốt nhất với logo nằm trên nền đơn giản, ít chi tiết. Với nền phức tạp, kết quả có thể cần chỉnh sửa thêm bằng phần mềm ảnh chuyên dụng.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="my-12 p-8 bg-[var(--panel-2)] border border-white/10 rounded-2xl text-xs text-[var(--muted)] leading-relaxed space-y-3">
+      <h3 class="font-bold text-white text-sm" data-i18n="seoTitle">Công cụ tải Video TikTok HD Không Logo hàng đầu</h3>
+      <p data-i18n="seoP1">CodySnap là một trong những công cụ hỗ trợ tải video TikTok không dán logo (Watermark) trực tuyến tốt nhất hiện nay. Bạn không cần phải cài đặt bất kỳ phần mềm nào trên máy tính hoặc điện thoại, tất cả những gì bạn cần là một liên kết video TikTok.</p>
+      <p data-i18n="seoP2">Với công nghệ tối ưu hóa, CodySnap cho phép tải xuống video định dạng MP4 độ phân giải cao HD, tải nhạc MP3 chất lượng cao và trích xuất album ảnh TikTok chỉ với một cú click chuột.</p>
     </section>
 
   </main>
 
-  <!-- BANNER QUẢNG CÁO FOOTER -->
-  <div class="max-w-5xl mx-auto px-4 pb-4 w-full">
-    <div class="ad-slot rounded-lg h-[90px] flex items-center justify-center text-xs font-mono text-[var(--muted)]">
+  <div class="max-w-6xl mx-auto px-4 pb-6 w-full relative z-10">
+    <div class="ad-slot rounded-2xl h-[90px] flex items-center justify-center text-xs font-mono text-[var(--muted)] border-white/5">
       [ Quảng Cáo / Bottom Banner Ad ]
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <footer class="border-t border-white/5 py-6 text-center text-xs font-mono text-[var(--muted)]">
-    <p>© <span id="year"></span> SnapDown · Free TikTok Downloader without Watermark.</p>
+  <footer class="border-t border-white/10 py-8 text-center text-xs font-mono text-[var(--muted)] bg-[var(--panel)] relative z-10">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <p>© <span id="year"></span> CodySnap. All rights reserved.</p>
+      <div class="flex gap-6">
+        <a href="#" class="hover:text-white transition">Privacy Policy</a>
+        <a href="#" class="hover:text-white transition">Terms of Service</a>
+        <a href="#" class="hover:text-white transition">Contact Us</a>
+      </div>
+    </div>
   </footer>
 
 <script>
 document.getElementById('year').textContent = new Date().getFullYear();
 
-// ==========================================
-// 1. HỆ THỐNG ĐA NGÔN NGỮ (I18N)
-// ==========================================
+function showToast(msg, type) {
+  const stack = document.getElementById('toastStack');
+  const el = document.createElement('div');
+  el.className = 'toast ' + (type || '');
+  el.textContent = msg;
+  stack.appendChild(el);
+  setTimeout(() => {
+    el.style.transition = 'opacity .25s ease, transform .25s ease';
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(10px)';
+    setTimeout(() => el.remove(), 250);
+  }, 2600);
+}
+
 const i18nData = {
   vi: {
-    docTitle: "SnapDown - Tải Video TikTok Không Watermark Online Miễn Phí",
-    heroTitle: "Tải Video & Ảnh TikTok <br><span class=\"text-[var(--amber)]\">Không Dán Logo / Watermark</span>",
+    docTitle: "CodySnap - Tải Video TikTok Không Watermark Online Miễn Phí",
+    navFeatures: "Tính năng", navWmTool: "Xóa Logo Ảnh", navHowTo: "Hướng dẫn", navFaq: "Hỏi đáp",
+    badgeUpdate: "Chào mừng bạn đến với CodySnap 👋",
+    heroTitle: "Tải Video & Ảnh TikTok <br><span class=\"text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-400 to-teal-300\">Không Dán Logo / Watermark</span>",
     heroSub: "Chỉ cần dán đường dẫn video hoặc bài viết ảnh vào bên dưới. Xử lý tức thì, hoàn toàn miễn phí!",
     inputPlaceholder: "Dán link TikTok vào đây (vd: https://vt.tiktok.com/...)",
     btnDownload: "Tải Xuống",
     msgProcessing: "Đang xử lý và xóa watermark...",
-    howToTitle: "Cách lấy link video TikTok",
-    step1: "Mở ứng dụng TikTok và tìm video hoặc bài viết ảnh bạn muốn tải.",
-    step2: "Nhấn nút 'Chia sẻ' (Share) và chọn 'Sao chép liên kết' (Copy Link).",
-    step3: "Dán link vào ô trên và bấm 'Tải Xuống' để xóa logo tức thì.",
+    btnCopyLink: "Sao chép liên kết gốc",
+    historyTitle: "Lịch sử tải gần đây", historyClear: "Xóa lịch sử", historyEmpty: "Chưa có lượt tải nào.",
+    featMainTitle: "Tại sao nên chọn CodySnap?", featMainSub: "Giải pháp tải media TikTok hàng đầu không tốn kém",
+    feat1Title: "Tốc Độ Cực Nhanh", feat1Desc: "Hệ thống xử lý tự động tách logo và trả về link tải gốc HD chỉ trong vài mili-giây.",
+    feat2Title: "Hỗ Trợ Album Ảnh & MP3", feat2Desc: "Không chỉ tải video, bạn còn có thể tách nhạc nền MP3 hoặc tải trọn bộ bài viết dạng slide ảnh.",
+    feat3Title: "An Toàn & Không Cần Cài Đặt", feat3Desc: "Hoạt động trực tiếp trên Web trình duyệt. Không cần cài phần mềm, không yêu cầu đăng nhập tài khoản.",
+    wmToolTitle: "Xóa Logo / Watermark Trên Ảnh Có Sẵn",
+    wmToolSub: "Tải ảnh từ máy lên, khoanh vùng logo và để công cụ tự lấp đầy khu vực đó bằng vân ảnh xung quanh.",
+    wmUploadTitle: "Nhấn để chọn ảnh hoặc kéo thả vào đây", wmUploadSub: "Hỗ trợ JPG, PNG, WEBP",
+    wmEditorHint: "Kéo và chỉnh khung màu xanh để bao quanh logo, sau đó nhấn \"Xóa Logo\".",
+    wmApplyBtn: "Xóa Logo", wmResetBtn: "Chọn Ảnh Khác", wmDownloadBtn: "Tải Ảnh Đã Xóa Logo",
+    wmDisclaimer: "Xử lý hoàn toàn trên trình duyệt của bạn — ảnh không được tải lên máy chủ nào.",
+    wmToastDone: "Đã xóa logo thành công!", wmToastNeedBox: "Vui lòng chọn vùng chứa logo trước.",
+    howToTitle: "Hướng Dẫn 3 Bước Tải Video TikTok",
+    step1Title: "Sao chép liên kết", step1: "Mở ứng dụng TikTok, chọn video muốn tải > Nhấn nút 'Chia sẻ' > 'Sao chép liên kết'.",
+    step2Title: "Dán liên kết vào CodySnap", step2: "Quay lại website, dán link vừa chép vào khung tìm kiếm và nhấn nút 'Tải Xuống'.",
+    step3Title: "Lưu File về máy", step3: "Chọn định dạng mong muốn (Video không logo, MP3 hoặc Ảnh) và tải về máy.",
     albumTitle: "Bộ ảnh không watermark:",
-    btnDlNoWm: "Tải Video (Không Watermark)",
-    btnDlWm: "Tải Video (Có Logo gốc)",
-    btnDlAudio: "Tải Nhạc Nền (MP3)",
-    btnDlImg: "Tải Ảnh Này"
+    btnDlNoWm: "Tải Video (Không Watermark)", btnDlWm: "Tải Video (Có Logo gốc)", btnDlAudio: "Tải Nhạc Nền (MP3)", btnDlImg: "Tải Ảnh Này",
+    faqMainTitle: "Câu Hỏi Thường Gặp (FAQ)",
+    q1: "Tôi có phải trả phí khi tải video tại CodySnap không?", a1: "Không! CodySnap hoàn toàn miễn phí 100%. Bạn có thể tải không giới hạn số lượng video.",
+    q2: "Video tải về được lưu ở thư mục nào trên thiết bị?", a2: "Thông thường video sẽ được lưu vào thư mục 'Downloads' (Tải về) trên máy tính hoặc ứng dụng 'Tệp' (Files) trên điện thoại.",
+    q3: "CodySnap có lưu trữ bản sao video tôi đã tải không?", a3: "Không. CodySnap không lưu trữ video hay theo dõi lịch sử tải của người dùng.",
+    q4: "Công cụ xóa logo trên ảnh có hoạt động với mọi ảnh không?", a4: "Công cụ hoạt động tốt nhất với logo nằm trên nền đơn giản, ít chi tiết. Với nền phức tạp, kết quả có thể cần chỉnh sửa thêm.",
+    seoTitle: "Công cụ tải Video TikTok HD Không Logo hàng đầu",
+    seoP1: "CodySnap là một trong những công cụ hỗ trợ tải video TikTok không dán logo (Watermark) trực tuyến tốt nhất hiện nay.",
+    seoP2: "Với công nghệ tối ưu hóa, CodySnap cho phép tải xuống video định dạng MP4 độ phân giải cao HD, tải nhạc MP3 chất lượng cao.",
+    toastCopied: "Đã sao chép liên kết!", toastNoUrl: "Vui lòng dán link TikTok!", toastNotFound: "Không tìm thấy video hoặc link không hợp lệ!", toastError: "Có lỗi xảy ra. Vui lòng thử lại!"
   },
   en: {
-    docTitle: "SnapDown - Free TikTok Downloader Without Watermark",
-    heroTitle: "Download TikTok Videos & Photos <br><span class=\"text-[var(--amber)]\">Without Watermark</span>",
+    docTitle: "CodySnap - Free TikTok Downloader Without Watermark",
+    navFeatures: "Features", navWmTool: "Photo Logo Remover", navHowTo: "How to Use", navFaq: "FAQ",
+    badgeUpdate: "Welcome to CodySnap 👋",
+    heroTitle: "Download TikTok Videos & Photos <br><span class=\"text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-400 to-teal-300\">Without Watermark</span>",
     heroSub: "Just paste the video or photo link below. Instant processing, 100% free!",
     inputPlaceholder: "Paste TikTok link here (e.g. https://vt.tiktok.com/...)",
     btnDownload: "Download",
     msgProcessing: "Processing and removing watermark...",
-    howToTitle: "How to get TikTok video link",
-    step1: "Open TikTok app and find the video or photo post you want.",
-    step2: "Tap 'Share' button and select 'Copy Link'.",
-    step3: "Paste the link above and click 'Download' to remove watermark.",
+    btnCopyLink: "Copy original link",
+    historyTitle: "Recent downloads", historyClear: "Clear history", historyEmpty: "No downloads yet.",
+    featMainTitle: "Why Choose CodySnap?", featMainSub: "The best free solution for downloading TikTok media",
+    feat1Title: "Lightning Speed", feat1Desc: "Automated system strips watermark and delivers HD link in milliseconds.",
+    feat2Title: "Photo Slide & MP3 Support", feat2Desc: "Extract background audio MP3 or download full photo slide albums easily.",
+    feat3Title: "Safe & No Install Needed", feat3Desc: "Works directly on your web browser. No software installation or login required.",
+    wmToolTitle: "Remove Logo / Watermark From Your Own Photo",
+    wmToolSub: "Upload a photo, mark the logo area, and let the tool fill it using the surrounding texture.",
+    wmUploadTitle: "Click to choose a photo or drag it here", wmUploadSub: "Supports JPG, PNG, WEBP",
+    wmEditorHint: "Drag and resize the cyan box over the logo, then click \"Remove Logo\".",
+    wmApplyBtn: "Remove Logo", wmResetBtn: "Choose Another Photo", wmDownloadBtn: "Download Cleaned Photo",
+    wmDisclaimer: "Processed entirely in your browser — your photo is never uploaded to any server.",
+    wmToastDone: "Logo removed successfully!", wmToastNeedBox: "Please select the logo area first.",
+    howToTitle: "3-Step Guide to Download TikTok Videos",
+    step1Title: "Copy Link", step1: "Open TikTok app, select video > Tap 'Share' > 'Copy Link'.",
+    step2Title: "Paste Link to CodySnap", step2: "Return here, paste link into input box and click 'Download'.",
+    step3Title: "Save File", step3: "Choose your format (No watermark video, MP3 or Photos) and save to your device.",
     albumTitle: "Watermark-free Photos:",
-    btnDlNoWm: "Download Video (No Watermark)",
-    btnDlWm: "Download Video (With Watermark)",
-    btnDlAudio: "Download Audio (MP3)",
-    btnDlImg: "Download Image"
+    btnDlNoWm: "Download Video (No Watermark)", btnDlWm: "Download Video (With Watermark)", btnDlAudio: "Download Audio (MP3)", btnDlImg: "Download Image",
+    faqMainTitle: "Frequently Asked Questions",
+    q1: "Do I have to pay for downloading videos?", a1: "No! CodySnap is 100% free with unlimited downloads.",
+    q2: "Where are downloaded files saved?", a2: "Files are saved into your default 'Downloads' folder or 'Files' app.",
+    q3: "Does CodySnap store downloaded videos?", a3: "No, we do not store videos or track user download history.",
+    q4: "Does the photo logo remover work on any image?", a4: "It works best on logos over simple backgrounds. Complex backgrounds may need further touch-up.",
+    seoTitle: "Best HD TikTok Video Downloader Without Watermark",
+    seoP1: "CodySnap is one of the best online tools for downloading TikTok videos without logos or watermarks.",
+    seoP2: "Effortlessly save high-definition MP4 videos, MP3 music, and full photo slide albums.",
+    toastCopied: "Link copied!", toastNoUrl: "Please paste a TikTok link!", toastNotFound: "Video not found or invalid link!", toastError: "Something went wrong. Please try again!"
   },
   zh: {
-    docTitle: "SnapDown - 免费TikTok无水印视频下载器",
-    heroTitle: "下载 TikTok 视频和图片 <br><span class=\"text-[var(--amber)]\">无水印 / 无 Logo</span>",
-    heroSub: "只需在下方粘贴视频或图片链接。即时处理，完全免费！",
-    inputPlaceholder: "在此处粘贴 TikTok 链接...",
+    docTitle: "CodySnap - 免费无水印TikTok下载器",
+    navFeatures: "功能", navWmTool: "图片去水印", navHowTo: "使用指南", navFaq: "常见问题",
+    badgeUpdate: "欢迎来到 CodySnap 👋",
+    heroTitle: "下载TikTok视频和图片 <br><span class=\"text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-400 to-teal-300\">无需水印/Logo</span>",
+    heroSub: "只需粘贴视频或图片链接。即时处理，完全免费！",
+    inputPlaceholder: "在此粘贴TikTok链接（例如 https://vt.tiktok.com/...）",
     btnDownload: "下载",
     msgProcessing: "正在处理并去除水印...",
-    howToTitle: "如何获取 TikTok 视频链接",
-    step1: "打开 TikTok 应用并找到您要下载的视频或图片。",
-    step2: "点击“分享”按钮并选择“复制链接”。",
-    step3: "将链接粘贴到上方，点击“下载”即可去除水印。",
-    albumTitle: "无水印图片集：",
-    btnDlNoWm: "下载视频 (无水印)",
-    btnDlWm: "下载视频 (含水印)",
-    btnDlAudio: "下载背景音乐 (MP3)",
-    btnDlImg: "下载此图片"
+    btnCopyLink: "复制原始链接",
+    historyTitle: "最近下载记录", historyClear: "清除记录", historyEmpty: "暂无下载记录。",
+    featMainTitle: "为什么选择CodySnap？", featMainSub: "领先的免费TikTok媒体下载解决方案",
+    feat1Title: "极速处理", feat1Desc: "系统自动去除水印并在几毫秒内返回高清原始下载链接。",
+    feat2Title: "支持图集和MP3", feat2Desc: "不仅可以下载视频，还可以提取背景音乐MP3或下载完整图集。",
+    feat3Title: "安全且无需安装", feat3Desc: "直接在网页浏览器中运行。无需安装软件，无需登录账户。",
+    wmToolTitle: "去除您自己图片上的Logo/水印",
+    wmToolSub: "上传图片，框选Logo区域，工具会用周围的纹理自动填充。",
+    wmUploadTitle: "点击选择图片或拖放到此处", wmUploadSub: "支持JPG、PNG、WEBP",
+    wmEditorHint: "拖动并调整青色框以覆盖Logo，然后点击“去除Logo”。",
+    wmApplyBtn: "去除Logo", wmResetBtn: "选择其他图片", wmDownloadBtn: "下载处理后的图片",
+    wmDisclaimer: "完全在您的浏览器中处理——图片不会上传到任何服务器。",
+    wmToastDone: "Logo已成功去除！", wmToastNeedBox: "请先选择Logo区域。",
+    howToTitle: "三步下载TikTok视频指南",
+    step1Title: "复制链接", step1: "打开TikTok应用，选择要下载的视频 > 点击“分享” > “复制链接”。",
+    step2Title: "粘贴链接到CodySnap", step2: "返回本站，将链接粘贴到输入框并点击“下载”。",
+    step3Title: "保存文件", step3: "选择所需格式（无水印视频、MP3或图片）并保存到设备。",
+    albumTitle: "无水印图集：",
+    btnDlNoWm: "下载视频（无水印）", btnDlWm: "下载视频（带原始Logo）", btnDlAudio: "下载背景音乐（MP3）", btnDlImg: "下载此图片",
+    faqMainTitle: "常见问题",
+    q1: "在CodySnap下载视频需要付费吗？", a1: "不需要！CodySnap完全免费，可无限次下载视频。",
+    q2: "下载的视频保存在哪个文件夹？", a2: "通常保存在设备的“下载”文件夹或手机的“文件”应用中。",
+    q3: "CodySnap会保存我下载过的视频副本吗？", a3: "不会。CodySnap不存储视频，也不追踪用户的下载记录。",
+    q4: "图片去水印工具适用于所有图片吗？", a4: "该工具在背景简单的Logo上效果最佳。背景复杂时可能需要进一步手动修饰。",
+    seoTitle: "领先的高清无Logo TikTok视频下载工具",
+    seoP1: "CodySnap是目前最好的在线TikTok无水印/无Logo视频下载工具之一。",
+    seoP2: "凭借优化技术，CodySnap可让您轻松下载高清MP4视频、高质量MP3音乐以及完整图集。",
+    toastCopied: "链接已复制！", toastNoUrl: "请粘贴TikTok链接！", toastNotFound: "未找到视频或链接无效！", toastError: "出现错误，请重试！"
   },
   de: {
-    docTitle: "SnapDown - TikTok Video Downloader Ohne Wasserzeichen",
-    heroTitle: "TikTok Videos & Fotos <br><span class=\"text-[var(--amber)]\">Ohne Wasserzeichen Herunterladen</span>",
-    heroSub: "Fügen Sie einfach den Link unten ein. Sofortige Verarbeitung, kostenlos!",
-    inputPlaceholder: "TikTok-Link hier einfügen...",
-    btnDownload: "Download",
-    msgProcessing: "Wird verarbeitet und Wasserzeichen entfernt...",
-    howToTitle: "So erhalten Sie den TikTok-Link",
-    step1: "Öffnen Sie die TikTok-App und suchen Sie das Video/Foto.",
-    step2: "Tippen Sie auf 'Teilen' und wählen Sie 'Link kopieren'.",
-    step3: "Fügen Sie den Link oben ein und klicken Sie auf 'Download'.",
+    docTitle: "CodySnap - Kostenloser TikTok Downloader ohne Wasserzeichen",
+    navFeatures: "Funktionen", navWmTool: "Logo entfernen", navHowTo: "Anleitung", navFaq: "FAQ",
+    badgeUpdate: "Willkommen bei CodySnap 👋",
+    heroTitle: "TikTok Videos & Fotos herunterladen <br><span class=\"text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-400 to-teal-300\">Ohne Wasserzeichen</span>",
+    heroSub: "Füge einfach den Video- oder Foto-Link unten ein. Sofortige Verarbeitung, 100% kostenlos!",
+    inputPlaceholder: "TikTok-Link hier einfügen (z.B. https://vt.tiktok.com/...)",
+    btnDownload: "Herunterladen",
+    msgProcessing: "Verarbeitung und Entfernung des Wasserzeichens...",
+    btnCopyLink: "Originallink kopieren",
+    historyTitle: "Letzte Downloads", historyClear: "Verlauf löschen", historyEmpty: "Noch keine Downloads.",
+    featMainTitle: "Warum CodySnap wählen?", featMainSub: "Die beste kostenlose Lösung zum Herunterladen von TikTok-Medien",
+    feat1Title: "Blitzschnell", feat1Desc: "Das System entfernt automatisch das Wasserzeichen und liefert den HD-Link in Millisekunden.",
+    feat2Title: "Fotoalben & MP3 Unterstützung", feat2Desc: "Extrahiere die Hintergrundmusik als MP3 oder lade ganze Fotoalben herunter.",
+    feat3Title: "Sicher & Ohne Installation", feat3Desc: "Funktioniert direkt im Webbrowser. Keine Software-Installation, keine Anmeldung erforderlich.",
+    wmToolTitle: "Logo / Wasserzeichen aus eigenem Foto entfernen",
+    wmToolSub: "Lade ein Foto hoch, markiere den Logo-Bereich und lass das Tool ihn mit der umgebenden Textur füllen.",
+    wmUploadTitle: "Klicken, um ein Foto auszuwählen, oder hierher ziehen", wmUploadSub: "Unterstützt JPG, PNG, WEBP",
+    wmEditorHint: "Ziehe und passe den cyanblauen Rahmen über das Logo an, dann klicke auf \"Logo entfernen\".",
+    wmApplyBtn: "Logo entfernen", wmResetBtn: "Anderes Foto wählen", wmDownloadBtn: "Bereinigtes Foto herunterladen",
+    wmDisclaimer: "Wird vollständig in deinem Browser verarbeitet — dein Foto wird auf keinen Server hochgeladen.",
+    wmToastDone: "Logo erfolgreich entfernt!", wmToastNeedBox: "Bitte wähle zuerst den Logo-Bereich aus.",
+    howToTitle: "3-Schritte-Anleitung zum TikTok-Video-Download",
+    step1Title: "Link kopieren", step1: "Öffne die TikTok-App, wähle das Video > Tippe auf 'Teilen' > 'Link kopieren'.",
+    step2Title: "Link in CodySnap einfügen", step2: "Komm hierher zurück, füge den Link in das Feld ein und klicke auf 'Herunterladen'.",
+    step3Title: "Datei speichern", step3: "Wähle das gewünschte Format (Video ohne Wasserzeichen, MP3 oder Fotos) und speichere es.",
     albumTitle: "Fotos ohne Wasserzeichen:",
-    btnDlNoWm: "Video herunterladen (Ohne Wasserzeichen)",
-    btnDlWm: "Video herunterladen (Mit Wasserzeichen)",
-    btnDlAudio: "Musik herunterladen (MP3)",
-    btnDlImg: "Bild herunterladen"
+    btnDlNoWm: "Video herunterladen (ohne Wasserzeichen)", btnDlWm: "Video herunterladen (mit Logo)", btnDlAudio: "Hintergrundmusik herunterladen (MP3)", btnDlImg: "Dieses Foto herunterladen",
+    faqMainTitle: "Häufig gestellte Fragen",
+    q1: "Muss ich für das Herunterladen von Videos bezahlen?", a1: "Nein! CodySnap ist zu 100% kostenlos mit unbegrenzten Downloads.",
+    q2: "Wo werden heruntergeladene Dateien gespeichert?", a2: "Dateien werden im Standardordner 'Downloads' oder in der 'Dateien'-App gespeichert.",
+    q3: "Speichert CodySnap heruntergeladene Videos?", a3: "Nein, wir speichern keine Videos und verfolgen keinen Download-Verlauf.",
+    q4: "Funktioniert der Logo-Entferner bei jedem Bild?", a4: "Am besten funktioniert er bei Logos auf einfachem Hintergrund. Bei komplexen Hintergründen kann Nacharbeit nötig sein.",
+    seoTitle: "Bester HD TikTok Video Downloader ohne Wasserzeichen",
+    seoP1: "CodySnap ist eines der besten Online-Tools zum Herunterladen von TikTok-Videos ohne Logos oder Wasserzeichen.",
+    seoP2: "Speichere mühelos hochauflösende MP4-Videos, MP3-Musik und komplette Fotoalben.",
+    toastCopied: "Link kopiert!", toastNoUrl: "Bitte einen TikTok-Link einfügen!", toastNotFound: "Video nicht gefunden oder ungültiger Link!", toastError: "Etwas ist schiefgelaufen. Bitte versuche es erneut!"
   },
   th: {
-    docTitle: "SnapDown - ดาวน์โหลดวิดีโอ TikTok ไม่มีลายน้ำ ฟรี",
-    heroTitle: "ดาวน์โหลดวิดีโอและรูปภาพ TikTok <br><span class=\"text-[var(--amber)]\">ไม่มีลายน้ำ / โลโก้</span>",
-    heroSub: "เพียงวางลิงก์วิดีโอหรือรูปภาพด้านล่าง ประมวลผลทันที ฟรี 100%!",
-    inputPlaceholder: "วางลิงก์ TikTok ที่นี่...",
+    docTitle: "CodySnap - ดาวน์โหลดวิดีโอ TikTok ไม่มีลายน้ำ ฟรี",
+    navFeatures: "ฟีเจอร์", navWmTool: "ลบโลโก้ในรูป", navHowTo: "วิธีใช้", navFaq: "คำถามที่พบบ่อย",
+    badgeUpdate: "ยินดีต้อนรับสู่ CodySnap 👋",
+    heroTitle: "ดาวน์โหลดวิดีโอและรูปภาพ TikTok <br><span class=\"text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-cyan-400 to-teal-300\">ไม่มีลายน้ำ/โลโก้</span>",
+    heroSub: "แค่วางลิงก์วิดีโอหรือรูปภาพด้านล่าง ประมวลผลทันที ฟรี 100%!",
+    inputPlaceholder: "วางลิงก์ TikTok ที่นี่ (เช่น https://vt.tiktok.com/...)",
     btnDownload: "ดาวน์โหลด",
     msgProcessing: "กำลังประมวลผลและลบลายน้ำ...",
-    howToTitle: "วิธีคัดลอกลิงก์ TikTok",
-    step1: "เปิดแอป TikTok และค้นหาวิดีโอหรือรูปภาพที่ต้องการ",
-    step2: "กดปุ่ม 'แชร์' แล้วเลือก 'คัดลอกลิงก์'",
-    step3: "วางลิงก์ด้านบนแล้วกด 'ดาวน์โหลด' เพื่อลบลายน้ำ",
-    albumTitle: "รูปภาพไม่มีลายน้ำ:",
-    btnDlNoWm: "ดาวน์โหลดวิดีโอ (ไม่มีลายน้ำ)",
-    btnDlWm: "ดาวน์โหลดวิดีโอ (มีลายน้ำ)",
-    btnDlAudio: "ดาวน์โหลดเพลง (MP3)",
-    btnDlImg: "ดาวน์โหลดรูปนี้"
+    btnCopyLink: "คัดลอกลิงก์ต้นฉบับ",
+    historyTitle: "ประวัติการดาวน์โหลดล่าสุด", historyClear: "ล้างประวัติ", historyEmpty: "ยังไม่มีประวัติการดาวน์โหลด",
+    featMainTitle: "ทำไมต้องเลือก CodySnap?", featMainSub: "โซลูชันดาวน์โหลดสื่อ TikTok ฟรีที่ดีที่สุด",
+    feat1Title: "รวดเร็วทันใจ", feat1Desc: "ระบบลบลายน้ำอัตโนมัติและส่งลิงก์ดาวน์โหลด HD ภายในไม่กี่มิลลิวินาที",
+    feat2Title: "รองรับอัลบั้มรูปและ MP3", feat2Desc: "แยกเสียงเพลงพื้นหลังเป็น MP3 หรือดาวน์โหลดอัลบั้มรูปภาพทั้งหมด",
+    feat3Title: "ปลอดภัยและไม่ต้องติดตั้ง", feat3Desc: "ใช้งานได้โดยตรงบนเว็บเบราว์เซอร์ ไม่ต้องติดตั้งซอฟต์แวร์หรือเข้าสู่ระบบ",
+    wmToolTitle: "ลบโลโก้/ลายน้ำบนรูปภาพของคุณเอง",
+    wmToolSub: "อัปโหลดรูปภาพ เลือกพื้นที่โลโก้ แล้วให้เครื่องมือเติมเต็มด้วยพื้นผิวโดยรอบ",
+    wmUploadTitle: "คลิกเพื่อเลือกรูปภาพหรือลากมาวางที่นี่", wmUploadSub: "รองรับ JPG, PNG, WEBP",
+    wmEditorHint: "ลากและปรับกรอบสีฟ้าให้ครอบคลุมโลโก้ แล้วกด \"ลบโลโก้\"",
+    wmApplyBtn: "ลบโลโก้", wmResetBtn: "เลือกรูปภาพอื่น", wmDownloadBtn: "ดาวน์โหลดรูปที่ลบโลโก้แล้ว",
+    wmDisclaimer: "ประมวลผลทั้งหมดในเบราว์เซอร์ของคุณ — รูปภาพจะไม่ถูกอัปโหลดไปยังเซิร์ฟเวอร์ใดๆ",
+    wmToastDone: "ลบโลโก้สำเร็จแล้ว!", wmToastNeedBox: "กรุณาเลือกพื้นที่โลโก้ก่อน",
+    howToTitle: "คู่มือ 3 ขั้นตอนดาวน์โหลดวิดีโอ TikTok",
+    step1Title: "คัดลอกลิงก์", step1: "เปิดแอป TikTok เลือกวิดีโอที่ต้องการ > กด 'แชร์' > 'คัดลอกลิงก์'",
+    step2Title: "วางลิงก์ใน CodySnap", step2: "กลับมาที่เว็บนี้ วางลิงก์ในช่องค้นหาแล้วกด 'ดาวน์โหลด'",
+    step3Title: "บันทึกไฟล์", step3: "เลือกรูปแบบที่ต้องการ (วิดีโอไม่มีลายน้ำ, MP3 หรือรูปภาพ) แล้วบันทึกลงเครื่อง",
+    albumTitle: "อัลบั้มรูปไม่มีลายน้ำ:",
+    btnDlNoWm: "ดาวน์โหลดวิดีโอ (ไม่มีลายน้ำ)", btnDlWm: "ดาวน์โหลดวิดีโอ (มีโลโก้ต้นฉบับ)", btnDlAudio: "ดาวน์โหลดเพลงพื้นหลัง (MP3)", btnDlImg: "ดาวน์โหลดรูปนี้",
+    faqMainTitle: "คำถามที่พบบ่อย",
+    q1: "ต้องเสียเงินเพื่อดาวน์โหลดวิดีโอที่ CodySnap ไหม?", a1: "ไม่! CodySnap ฟรี 100% ดาวน์โหลดได้ไม่จำกัด",
+    q2: "ไฟล์ที่ดาวน์โหลดถูกบันทึกไว้ที่โฟลเดอร์ไหน?", a2: "โดยปกติจะถูกบันทึกในโฟลเดอร์ 'Downloads' หรือแอป 'ไฟล์' บนอุปกรณ์ของคุณ",
+    q3: "CodySnap เก็บสำเนาวิดีโอที่ดาวน์โหลดไว้หรือไม่?", a3: "ไม่ CodySnap ไม่จัดเก็บวิดีโอหรือติดตามประวัติการดาวน์โหลดของผู้ใช้",
+    q4: "เครื่องมือลบโลโก้ใช้ได้กับรูปภาพทุกแบบไหม?", a4: "เครื่องมือทำงานได้ดีที่สุดกับโลโก้บนพื้นหลังเรียบง่าย พื้นหลังที่ซับซ้อนอาจต้องแก้ไขเพิ่มเติม",
+    seoTitle: "เครื่องมือดาวน์โหลดวิดีโอ TikTok HD ไม่มีโลโก้อันดับต้น",
+    seoP1: "CodySnap เป็นหนึ่งในเครื่องมือออนไลน์ที่ดีที่สุดสำหรับดาวน์โหลดวิดีโอ TikTok โดยไม่มีโลโก้หรือลายน้ำ",
+    seoP2: "ด้วยเทคโนโลยีที่ปรับให้เหมาะสม CodySnap ช่วยให้คุณบันทึกวิดีโอ MP4 ความละเอียดสูง เพลง MP3 คุณภาพสูง และอัลบั้มรูปภาพได้อย่างง่ายดาย",
+    toastCopied: "คัดลอกลิงก์แล้ว!", toastNoUrl: "กรุณาวางลิงก์ TikTok!", toastNotFound: "ไม่พบวิดีโอหรือลิงก์ไม่ถูกต้อง!", toastError: "เกิดข้อผิดพลาด กรุณาลองอีกครั้ง!"
   }
 };
 
@@ -273,78 +552,85 @@ let currentLang = 'vi';
 function applyLanguage(lang) {
   currentLang = lang;
   const dict = i18nData[lang] || i18nData['vi'];
-  
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     if (dict[key]) el.innerHTML = dict[key];
   });
-  
   document.querySelectorAll('[data-i18n-ph]').forEach(el => {
     const key = el.getAttribute('data-i18n-ph');
     if (dict[key]) el.placeholder = dict[key];
   });
+  renderHistory();
 }
 
-document.getElementById('langSelect').addEventListener('change', (e) => {
-  applyLanguage(e.target.value);
-});
+document.getElementById('langSelect').addEventListener('change', (e) => applyLanguage(e.target.value));
 
-// ==========================================
-// 2. XỬ LÝ LẤY LINK & TẢI VIDEO/ẢNH TIKTOK
-// ==========================================
+function t(key) {
+  const dict = i18nData[currentLang] || i18nData['vi'];
+  return dict[key] || i18nData['vi'][key] || key;
+}
+
 const form = document.getElementById('downloadForm');
-const pasteBtn = document.getElementById('pasteBtn');
 const videoUrlInput = document.getElementById('videoUrl');
 const resultContainer = document.getElementById('resultContainer');
 const loadingState = document.getElementById('loadingState');
 const resultCard = document.getElementById('resultCard');
+let lastData = null;
 
-// Nút Paste nhanh từ Clipboard
-pasteBtn.addEventListener('click', async () => {
+document.getElementById('pasteBtn').addEventListener('click', async () => {
   try {
-    const text = await navigator.clipboard.readText();
-    videoUrlInput.value = text;
+    videoUrlInput.value = await navigator.clipboard.readText();
   } catch (err) {
-    alert('Không thể đọc clipboard. Vui lòng dán thủ công!');
+    showToast(t('toastError'), 'error');
   }
 });
 
-// Submit Form
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const url = videoUrlInput.value.trim();
-  if (!url) return;
+  if (!url) { showToast(t('toastNoUrl'), 'error'); return; }
 
   resultContainer.classList.remove('hidden');
   loadingState.classList.remove('hidden');
   resultCard.classList.add('hidden');
 
   try {
-    // Gọi API TikTok Parser miễn phí (TikWM API)
     const response = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`);
     const resData = await response.json();
 
     if (resData.code === 0 && resData.data) {
+      lastData = resData.data;
       renderResult(resData.data);
+      addToHistory(resData.data);
     } else {
-      alert('Không tìm thấy video hoặc link không hợp lệ!');
+      showToast(t('toastNotFound'), 'error');
       resultContainer.classList.add('hidden');
     }
   } catch (error) {
-    console.error(error);
-    alert('Có lỗi xảy ra trong quá trình lấy dữ liệu. Vui lòng thử lại!');
+    showToast(t('toastError'), 'error');
     resultContainer.classList.add('hidden');
   } finally {
     loadingState.classList.add('hidden');
   }
 });
 
-// Hiển thị kết quả sau khi giải mã link
+function formatCount(n) {
+  if (!n && n !== 0) return '';
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+  return String(n);
+}
+
 function renderResult(data) {
-  const dict = i18nData[currentLang];
-  
+  const dict = i18nData[currentLang] || i18nData['vi'];
   document.getElementById('resAuthor').textContent = `@${data.author.unique_id || data.author.nickname}`;
   document.getElementById('resTitle').textContent = data.title || 'TikTok Media';
+
+  const statsBits = [];
+  if (data.play_count) statsBits.push('▶ ' + formatCount(data.play_count));
+  if (data.digg_count) statsBits.push('♥ ' + formatCount(data.digg_count));
+  if (data.duration) statsBits.push(data.duration + 's');
+  document.getElementById('resStats').textContent = statsBits.join('   ');
 
   const resCover = document.getElementById('resCover');
   const resVideo = document.getElementById('resVideo');
@@ -355,7 +641,6 @@ function renderResult(data) {
   actionButtons.innerHTML = '';
   imageList.innerHTML = '';
 
-  // TRƯỜNG HỢP 1: BÀI ĐĂNG DẠNG ALBUM ẢNH
   if (data.images && data.images.length > 0) {
     resCover.src = data.images[0];
     resCover.classList.remove('hidden');
@@ -364,52 +649,232 @@ function renderResult(data) {
 
     data.images.forEach((imgUrl, idx) => {
       const imgItem = document.createElement('div');
-      imgItem.className = 'bg-black/30 rounded-lg p-2 border border-white/5 text-center flex flex-col gap-2';
+      imgItem.className = 'bg-black/30 rounded-xl p-2.5 border border-white/10 text-center flex flex-col gap-2.5';
       imgItem.innerHTML = `
-        <img src="${imgUrl}" class="w-full h-32 object-cover rounded" alt="Photo ${idx+1}">
-        <a href="${imgUrl}" target="_blank" download class="text-[11px] font-mono bg-[var(--amber)] text-[#12141A] font-semibold py-1.5 rounded hover:brightness-110">
+        <img src="${imgUrl}" class="w-full h-36 object-cover rounded-lg" alt="Photo">
+        <a href="${imgUrl}" target="_blank" download class="text-xs font-mono bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-2 rounded-lg transition">
           ${dict.btnDlImg || 'Tải Ảnh'} #${idx+1}
         </a>
       `;
       imageList.appendChild(imgItem);
     });
-
-  // TRƯỜNG HỢP 2: BÀI ĐĂNG DẠNG VIDEO
   } else {
     imageGallery.classList.add('hidden');
     resVideo.src = data.play;
     resVideo.classList.remove('hidden');
     resCover.classList.add('hidden');
 
-    // Nút tải Video No Watermark
     actionButtons.innerHTML += `
-      <a href="${data.play}" target="_blank" download class="w-full font-display font-semibold text-xs sm:text-sm bg-[var(--amber)] text-[#12141A] py-3 px-4 rounded-xl flex items-center justify-center gap-2 hover:brightness-110 transition">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      <a href="${data.play}" target="_blank" download class="w-full font-bold text-sm bg-gradient-to-r from-violet-600 to-cyan-500 text-white py-3.5 px-5 rounded-xl flex items-center justify-center gap-2 hover:brightness-110 transition shadow-lg shadow-violet-500/20">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
         ${dict.btnDlNoWm}
       </a>
     `;
 
-    // Nút tải Video Gốc (Có logo)
     if (data.wmplay) {
       actionButtons.innerHTML += `
-        <a href="${data.wmplay}" target="_blank" download class="w-full font-display font-semibold text-xs sm:text-sm border border-white/10 text-white py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 hover:bg-white/5 transition">
+        <a href="${data.wmplay}" target="_blank" download class="w-full font-semibold text-xs sm:text-sm border border-white/10 text-white py-3 px-5 rounded-xl flex items-center justify-center gap-2 hover:bg-white/5 transition">
           ${dict.btnDlWm}
         </a>
       `;
     }
   }
 
-  // Nút tải Nhạc MP3 (dùng chung cho cả video lẫn bài ảnh)
   if (data.music) {
     actionButtons.innerHTML += `
-      <a href="${data.music}" target="_blank" download class="w-full font-display font-semibold text-xs sm:text-sm border border-[var(--cyan)]/40 text-[var(--cyan)] py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[var(--cyan)]/10 transition">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      <a href="${data.music}" target="_blank" download class="w-full font-semibold text-xs sm:text-sm border border-cyan-500/30 text-cyan-300 py-3 px-5 rounded-xl flex items-center justify-center gap-2 hover:bg-cyan-500/10 transition">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
         ${dict.btnDlAudio}
       </a>
     `;
   }
 
   resultCard.classList.remove('hidden');
+}
+
+document.getElementById('copyLinkBtn').addEventListener('click', async () => {
+  if (!lastData) return;
+  try {
+    await navigator.clipboard.writeText(lastData.play || lastData.images?.[0] || videoUrlInput.value);
+    showToast(t('toastCopied'), 'success');
+  } catch (err) {
+    showToast(t('toastError'), 'error');
+  }
+});
+
+const HISTORY_KEY = 'codysnap_history';
+
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
+  catch (e) { return []; }
+}
+
+function addToHistory(data) {
+  const history = getHistory();
+  history.unshift({
+    title: data.title || 'TikTok Media',
+    author: data.author.unique_id || data.author.nickname || '',
+    cover: data.cover || (data.images && data.images[0]) || '',
+    url: data.play || (data.images && data.images[0]) || '',
+    time: Date.now()
+  });
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 8)));
+  renderHistory();
+}
+
+function renderHistory() {
+  const history = getHistory();
+  const section = document.getElementById('historySection');
+  const list = document.getElementById('historyList');
+  if (history.length === 0) { section.classList.add('hidden'); return; }
+  section.classList.remove('hidden');
+  list.innerHTML = history.map(item => `
+    <div class="flex items-center gap-3 bg-[var(--panel)] border border-white/10 rounded-xl p-3 hover:border-white/20 transition">
+      <img src="${item.cover}" class="w-12 h-12 rounded-lg object-cover bg-black/40 shrink-0" onerror="this.style.display='none'">
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-medium text-white truncate">${item.title}</p>
+        <p class="text-[11px] text-[var(--muted)] font-mono mt-0.5">@${item.author}</p>
+      </div>
+      <a href="${item.url}" target="_blank" download class="shrink-0 p-2 rounded-lg bg-white/5 hover:bg-white/10 text-cyan-400 transition">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      </a>
+    </div>
+  `).join('');
+}
+
+document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+  localStorage.removeItem(HISTORY_KEY);
+  renderHistory();
+  showToast(t('historyEmpty'));
+});
+
+renderHistory();
+
+const wmUploadZone = document.getElementById('wmUploadZone');
+const wmFileInput = document.getElementById('wmFileInput');
+const wmEditor = document.getElementById('wmEditor');
+const wmCanvas = document.getElementById('wmCanvas');
+const wmCanvasWrap = document.getElementById('wmCanvasWrap');
+const wmSelBox = document.getElementById('wmSelBox');
+const wmApplyBtn = document.getElementById('wmApplyBtn');
+const wmResetBtn = document.getElementById('wmResetBtn');
+const wmDownloadBtn = document.getElementById('wmDownloadBtn');
+const wmCtx = wmCanvas.getContext('2d');
+
+let wmImg = null;
+let wmBox = { x: 20, y: 20, w: 100, h: 60 };
+let wmDrag = null;
+
+wmUploadZone.addEventListener('click', () => wmFileInput.click());
+wmUploadZone.addEventListener('dragover', (e) => { e.preventDefault(); wmUploadZone.classList.add('border-cyan-400/50'); });
+wmUploadZone.addEventListener('dragleave', () => wmUploadZone.classList.remove('border-cyan-400/50'));
+wmUploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  wmUploadZone.classList.remove('border-cyan-400/50');
+  if (e.dataTransfer.files[0]) loadWmImage(e.dataTransfer.files[0]);
+});
+wmFileInput.addEventListener('change', () => {
+  if (wmFileInput.files[0]) loadWmImage(wmFileInput.files[0]);
+});
+
+function loadWmImage(file) {
+  if (!file.type.startsWith('image/')) { showToast(t('toastError'), 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      wmImg = img;
+      const maxW = 640;
+      const scale = Math.min(1, maxW / img.width);
+      wmCanvas.width = img.width * scale;
+      wmCanvas.height = img.height * scale;
+      wmCtx.drawImage(img, 0, 0, wmCanvas.width, wmCanvas.height);
+      wmEditor.classList.remove('hidden');
+      wmDownloadBtn.classList.add('hidden');
+      wmBox = { x: wmCanvas.width * 0.6, y: 10, w: wmCanvas.width * 0.3, h: wmCanvas.height * 0.2 };
+      showWmBox();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function showWmBox() {
+  wmSelBox.classList.remove('hidden');
+  wmSelBox.style.left = wmBox.x + 'px';
+  wmSelBox.style.top = wmBox.y + 'px';
+  wmSelBox.style.width = wmBox.w + 'px';
+  wmSelBox.style.height = wmBox.h + 'px';
+}
+
+wmSelBox.addEventListener('pointerdown', (e) => {
+  const isHandle = e.target.dataset.handle;
+  wmDrag = { mode: isHandle ? 'resize' : 'move', startX: e.clientX, startY: e.clientY, startBox: { ...wmBox } };
+  e.stopPropagation();
+});
+
+window.addEventListener('pointermove', (e) => {
+  if (!wmDrag) return;
+  const dx = e.clientX - wmDrag.startX;
+  const dy = e.clientY - wmDrag.startY;
+  if (wmDrag.mode === 'move') {
+    wmBox.x = Math.max(0, Math.min(wmCanvas.width - wmBox.w, wmDrag.startBox.x + dx));
+    wmBox.y = Math.max(0, Math.min(wmCanvas.height - wmBox.h, wmDrag.startBox.y + dy));
+  } else {
+    wmBox.w = Math.max(20, Math.min(wmCanvas.width - wmBox.x, wmDrag.startBox.w + dx));
+    wmBox.h = Math.max(20, Math.min(wmCanvas.height - wmBox.y, wmDrag.startBox.h + dy));
+  }
+  showWmBox();
+});
+
+window.addEventListener('pointerup', () => { wmDrag = null; });
+
+wmApplyBtn.addEventListener('click', () => {
+  if (!wmImg) return;
+  removeLogoPatch(wmBox);
+  wmSelBox.classList.add('hidden');
+  wmDownloadBtn.classList.remove('hidden');
+  wmDownloadBtn.href = wmCanvas.toDataURL('image/png');
+  showToast(t('wmToastDone'), 'success');
+});
+
+wmResetBtn.addEventListener('click', () => {
+  wmImg = null;
+  wmEditor.classList.add('hidden');
+  wmFileInput.value = '';
+});
+
+function removeLogoPatch(box) {
+  const x = Math.round(box.x), y = Math.round(box.y), w = Math.round(box.w), h = Math.round(box.h);
+  const cw = wmCanvas.width, ch = wmCanvas.height;
+
+  let sx = x, sy = y - h, sw = w, sh = h;
+  if (sy < 0) { sy = y + h; if (sy + h > ch) { sx = x - w; sy = y; if (sx < 0) { sx = x + w; sy = y; if (sx + w > cw) { sx = Math.max(0, x); sy = Math.max(0, y - h); } } } }
+  sx = Math.max(0, Math.min(cw - w, sx));
+  sy = Math.max(0, Math.min(ch - h, sy));
+
+  const patch = wmCtx.getImageData(sx, sy, w, h);
+  wmCtx.putImageData(patch, x, y);
+
+  const pad = 6;
+  const rx = Math.max(0, x - pad), ry = Math.max(0, y - pad);
+  const rw = Math.min(cw - rx, w + pad * 2), rh = Math.min(ch - ry, h + pad * 2);
+  const region = wmCtx.getImageData(rx, ry, rw, rh);
+  const src = new Uint8ClampedArray(region.data);
+  const d = region.data;
+  for (let py = 1; py < rh - 1; py++) {
+    for (let px = 1; px < rw - 1; px++) {
+      const i = (py * rw + px) * 4;
+      for (let c = 0; c < 3; c++) {
+        const idx = i + c;
+        const sum = src[idx]
+          + src[idx - 4] + src[idx + 4]
+          + src[idx - rw * 4] + src[idx + rw * 4];
+        d[idx] = sum / 5;
+      }
+    }
+  }
+  wmCtx.putImageData(region, rx, ry);
 }
 </script>
 
